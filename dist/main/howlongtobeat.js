@@ -27,17 +27,17 @@ class HowLongToBeatService {
             return entry;
         });
     }
-    search(query) {
+    search(query, page) {
         return __awaiter(this, void 0, void 0, function* () {
-            let searchPage = yield this.scraper.search(query, HowLongToBeatService.SEARCH_URL);
+            let searchPage = yield this.scraper.search(query, page, HowLongToBeatService.SEARCH_URL);
             let result = HowLongToBeatParser.parseSearch(searchPage, query);
             return result;
         });
     }
 }
-HowLongToBeatService.BASE_URL = 'https://howlongtobeat.com/';
+HowLongToBeatService.BASE_URL = "https://howlongtobeat.com/";
 HowLongToBeatService.DETAIL_URL = `${HowLongToBeatService.BASE_URL}game.php?id=`;
-HowLongToBeatService.SEARCH_URL = `${HowLongToBeatService.BASE_URL}search_results.php`;
+HowLongToBeatService.SEARCH_URL = `${HowLongToBeatService.BASE_URL}search_results?page=`;
 exports.HowLongToBeatService = HowLongToBeatService;
 /**
  * Encapsulates a game detail
@@ -131,9 +131,20 @@ class HowLongToBeatParser {
      */
     static parseSearch(html, searchTerm) {
         let results = new Array();
+        let pages;
         const $ = cheerio.load(html);
         //check for result page
         if ($('h3').length > 0) {
+            // Get page numbers
+            let pageNumbers = $("span.search_list_page");
+            if (pageNumbers.length <= 1) {
+                pages = 1;
+            }
+            else {
+                // Get the last page number
+                pages = pageNumbers[pageNumbers.length - 1].children[0].data;
+            }
+            // Get game box details
             let liElements = $('li');
             liElements.each(function () {
                 let gameTitleAnchor = $(this).find('a')[0];
@@ -186,7 +197,7 @@ class HowLongToBeatParser {
                 results.push(entry);
             });
         }
-        return results;
+        return { results: results, pages: pages };
     }
     /**
      * Use this method to distinguish time descriptions for Online

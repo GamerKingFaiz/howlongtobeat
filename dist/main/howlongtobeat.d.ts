@@ -10,7 +10,7 @@ export declare class HowLongToBeatService {
      * @return Promise<HowLongToBeatEntry> the promise that, when fullfilled, returns the game
      */
     detail(gameId: string): Promise<HowLongToBeatEntry>;
-    search(query: string): Promise<Array<HowLongToBeatEntry>>;
+    search(query: string, page: number): Promise<SearchResults>;
 }
 /**
  * Encapsulates a game detail
@@ -29,6 +29,10 @@ export declare class HowLongToBeatEntry {
     readonly searchTerm: string;
     readonly playableOn: string[];
     constructor(id: string, name: string, description: string, platforms: string[], imageUrl: string, timeLabels: Array<string[]>, gameplayMain: number, gameplayMainExtra: number, gameplayCompletionist: number, similarity: number, searchTerm: string);
+}
+interface SearchResults {
+    results: Array<HowLongToBeatEntry>;
+    pages: number;
 }
 /**
  * Internal helper class to parse html and create a HowLongToBeatEntry
@@ -49,7 +53,7 @@ export declare class HowLongToBeatParser {
      * @param searchTerm the query what was searched, only used to calculate the similarity
      * @return an Array<HowLongToBeatEntry>s
      */
-    static parseSearch(html: string, searchTerm: string): Array<HowLongToBeatEntry>;
+    static parseSearch(html: string, searchTerm: string): SearchResults;
     /**
      * Use this method to distinguish time descriptions for Online
      * from Story mode games.
@@ -95,3 +99,4 @@ export declare class HowLongToBeatParser {
      */
     static calcDistancePercentage(text: string, term: string): number;
 }
+export {};

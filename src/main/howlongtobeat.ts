@@ -5,9 +5,9 @@ import { HtmlScraper } from './htmlscraper';
 
 export class HowLongToBeatService {
   private scraper: HtmlScraper = new HtmlScraper();
-  public static BASE_URL: string = 'https://howlongtobeat.com/';
+  public static BASE_URL: string = "https://howlongtobeat.com/";
   public static DETAIL_URL: string = `${HowLongToBeatService.BASE_URL}game.php?id=`;
-  public static SEARCH_URL: string = `${HowLongToBeatService.BASE_URL}search_results.php`;
+  public static SEARCH_URL: string = `${HowLongToBeatService.BASE_URL}search_results?page=`;
 
   constructor() {}
 
@@ -24,9 +24,10 @@ export class HowLongToBeatService {
     return entry;
   }
 
-  async search(query: string): Promise<Array<HowLongToBeatEntry>> {
+  async search(query: string, page: number): Promise<SearchResults> {
     let searchPage = await this.scraper.search(
       query,
+      page,
       HowLongToBeatService.SEARCH_URL
     );
     let result = HowLongToBeatParser.parseSearch(searchPage, query);
@@ -57,6 +58,11 @@ export class HowLongToBeatEntry {
   ) {
     this.playableOn = platforms;
   }
+}
+
+interface SearchResults {
+  results: Array<HowLongToBeatEntry>;
+  pages: number;
 }
 
 /**
@@ -152,12 +158,22 @@ export class HowLongToBeatParser {
   static parseSearch(
     html: string,
     searchTerm: string
-  ): Array<HowLongToBeatEntry> {
+  ): SearchResults {
     let results: Array<HowLongToBeatEntry> = new Array<HowLongToBeatEntry>();
+    let pages: number;
     const $ = cheerio.load(html);
 
     //check for result page
     if ($('h3').length > 0) {
+      // Get page numbers
+      let pageNumbers = $("span.search_list_page");
+      if (pageNumbers.length <= 1) {
+        pages = 1;
+      } else {
+        // Get the last page number
+        pages = pageNumbers[pageNumbers.length - 1].children[0].data;
+      }
+      // Get game box details
       let liElements = $('li');
       liElements.each(function() {
         let gameTitleAnchor = $(this).find('a')[0];     
@@ -235,7 +251,7 @@ export class HowLongToBeatParser {
       });
     }
 
-    return results;
+    return { results: results, pages: pages };
   }
 
   /**

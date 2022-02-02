@@ -30,7 +30,7 @@ describe('Testing HowLongToBeatParser', () => {
     it('should parse the search result (static, from search of Persona 4)', () => {
       let html = fs.readFileSync('src/test/resources/search.html', 'utf-8');
       let results = HowLongToBeatParser.parseSearch(html, 'Persona 4');
-      assert.isTrue(results.length === 5);
+      assert.isTrue(results.results.length === 5);
       assert.strictEqual(results[0].name, 'Persona 4: Golden');
       assert.strictEqual(results[0].searchTerm, 'Persona 4');
       assert.strictEqual(results[0].similarity, 0.53);
@@ -93,7 +93,7 @@ describe('Testing HowLongToBeatParser', () => {
       );
       const search = HowLongToBeatParser.parseSearch(html, 'Street Fighter');
       assert.isDefined(search);
-      assert.strictEqual(search.length, 18);
+      assert.strictEqual(search.results.length, 18);
       const streetFighter = search[0];
       assert.strictEqual(streetFighter.name, 'Street Fighter');
       assert.strictEqual(streetFighter.searchTerm, 'Street Fighter');
@@ -135,7 +135,7 @@ describe('Testing HowLongToBeatParser', () => {
       );
       const search = HowLongToBeatParser.parseSearch(html, 'Grand Theft Auto');
       assert.isDefined(search);
-      assert.strictEqual(search.length, 18);
+      assert.strictEqual(search.results.length, 18);
       const gtaV = search[2];
       assert.strictEqual(gtaV.name, 'Grand Theft Auto V');
       assert.strictEqual(gtaV.searchTerm, 'Grand Theft Auto');
