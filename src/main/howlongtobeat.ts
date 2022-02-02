@@ -171,7 +171,7 @@ export class HowLongToBeatParser {
         pages = 1;
       } else {
         // Get the last page number
-        pages = pageNumbers[pageNumbers.length - 1].children[0].data;
+        pages = Number(pageNumbers[pageNumbers.length - 1].children[0].data);
       }
       // Get game box details
       let liElements = $('li');
